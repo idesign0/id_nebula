@@ -39,6 +39,9 @@
 #include <sync_tooling_msgs/self_reported_clock_state_update.pb.h>
 #include <sync_tooling_msgs/system_clock_id.pb.h>
 #include <unistd.h>
+#if defined(__APPLE__) && !defined(HOST_NAME_MAX)
+#define HOST_NAME_MAX _POSIX_HOST_NAME_MAX
+#endif
 
 #include <cerrno>
 #include <climits>

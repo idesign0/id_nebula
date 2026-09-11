@@ -25,7 +25,12 @@ inline std::string errno_to_string(int err_no)
 {
   static constexpr size_t gnu_max_strerror_length = 1024;
   std::array<char, gnu_max_strerror_length> msg_buf{};  // NOLINT
+  #if defined(__GLIBC__) && defined(_GNU_SOURCE)
   std::string_view msg = strerror_r(err_no, msg_buf.data(), msg_buf.size());
+#else
+  strerror_r(err_no, msg_buf.data(), msg_buf.size());  /* XSI/macOS: int, fills buf */
+  std::string_view msg = msg_buf.data();
+#endif
   return std::string{msg};
 }
 

@@ -134,7 +134,9 @@ public:
       sock_fd_.setsockopt(SOL_SOCKET, SO_TIMESTAMP, 1).value_or_throw();
 
       // Enable reporting on packets dropped due to full UDP receive buffer
+#ifdef SO_RXQ_OVFL
       sock_fd_.setsockopt(SOL_SOCKET, SO_RXQ_OVFL, 1).value_or_throw();
+#endif
     }
 
     /**
@@ -415,12 +417,14 @@ private:
           metadata.timestamp_ns.emplace(timestamp_ns);
           break;
         }
+        #ifdef SO_RXQ_OVFL
         case SO_RXQ_OVFL: {
           const auto * drops = (const uint32_t *)CMSG_DATA(cmsg);
           metadata.n_packets_dropped_since_last_receive =
             drop_monitor.get_drops_since_last_receive(*drops);
           break;
         }
+#endif
         default:
           continue;
       }
